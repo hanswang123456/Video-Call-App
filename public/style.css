@@ -1,0 +1,183 @@
+/* scorll bar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(83, 140, 140);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(38, 63, 63);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(26, 43, 43);
+}
+
+body {
+  background-color: darkslategrey;
+  margin: 0;
+  padding-bottom: 3rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
+.siteTitle {
+  font-size: 50px;
+  width: 100%;
+  text-align: center;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  font-weight: bolder;
+  color: white;
+}
+
+#writeMessage {
+  padding: 0.25rem;
+  position: fixed;
+  bottom: 0;
+  left: 25%;
+  right: 25%;
+  display: flex;
+  height: 3rem;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+#input {
+  border: none;
+  padding: 0 1rem;
+  flex-grow: 1;
+  border-radius: 2rem;
+  margin: 0.25rem;
+}
+#input:focus {
+  outline: none;
+}
+.chatRoomButton {
+  background: #333;
+  border: 2px solid black;
+  padding: 0 1rem;
+  margin: 0.25rem;
+  border-radius: 3px;
+  outline: none;
+  color: #fff;
+}
+
+#landingPage {
+  background-color: darkslategrey;
+  width: 40%;
+  height: 500px;
+  padding-top: 10%;
+  margin: 0px auto;
+}
+#newRoomForm {
+  padding: 0.25rem;
+  margin-top: 25%;
+  margin: 0px auto;
+  display: flex;
+  width: 80%;
+  height: auto;
+}
+#nameField {
+  background-color: darkslategray;
+  color: white;
+  width: 100%;
+  font-size: 40px;
+  border: none;
+  border-bottom: 2px solid whitesmoke;
+  outline: none;
+  margin: 10% 1.5%;
+}
+
+#roomField {
+  background-color: darkslategray;
+  color: white;
+  width: 65%;
+  font-size: 25px;
+  border: none;
+  border-bottom: 2px solid whitesmoke;
+  outline: none;
+  margin: 0% 1.5%;
+}
+
+#joinRoomForm {
+  padding: 0.25rem;
+  margin-top: 25%;
+  margin: 0px auto;
+  display: flex;
+  width: 80%;
+  height: auto;
+}
+#chatPage {
+  background-color: rgb(40, 67, 67);
+  position: fixed;
+  border-radius: 5%;
+  top: 5%;
+  left: 25%;
+  right: 25%;
+}
+
+#landingPage > form > button {
+  background-color: #464646;
+  border-radius: 10px;
+  border: 3px solid black;
+  display: inline-block;
+  cursor: pointer;
+  color: white;
+  font-family: Arial;
+  font-size: 20px;
+  padding: 10px 15px;
+  text-decoration: none;
+}
+
+#landingPage > form > button:hover {
+  background-color: #dbdbdb;
+  color: black;
+}
+
+#newRoomForm > button {
+  width: 100%;
+}
+
+#joinRoomForm > button {
+  width: 35%;
+}
+#leaveRoom {
+  margin-left: 5%;
+}
+
+#messages {
+  list-style-type: none;
+  height: 80vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+#messages > li {
+  padding: 0.5rem 1rem;
+}
+#messages > li:nth-child(odd) {
+  background: #efefef;
+}
+
+/*this is the place where the user's messages are styled*/
+.message {
+  background-color: grey;
+  border: 1px solid black;
+  border-radius: 10%;
+  width: 50%;
+  margin: 5px;
+  padding: 5px;
+}
+.messageArea {
+  width: 100%;
+}
+.generalInfo {
+  font-weight: bold;
+}
+/*the td with time in it*/
+.generalInfo td:nth-child(2) {
+  text-align: right;
+}

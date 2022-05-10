@@ -1,0 +1,18 @@
+{
+  "name": "chatroom",
+  "version": "1.0.0",
+  "description": "Socket.io Chatroom",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.1",
+    "socket.io": "^4.5.0",
+    "socket.io-client": "^4.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "author": "Hans Wang",
+  "license": "ISC"
+}
