@@ -25,9 +25,9 @@ io.on("connection", (socket) => {
   }
 
   // When someone attempts to join the room
-  socket.on("join-room", (roomId, userId) => {
+  socket.on("join-room", (roomId, userId, username) => {
     socket.join(roomId); // Join the room
-    socket.to(roomId).emit("user-connected", userId); // Tell everyone else in the room that we joined
+    socket.to(roomId).emit("user-connected", userId, username); // Tell everyone else in the room that we joined
 
     // Communicate the disconnection
     socket.on("disconnect", () => {
@@ -36,10 +36,10 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("message", ({ message, room, user, time }) => {
+  socket.on("message", ({ message, room, username, time }) => {
     //emit to client
     console.log("asdf");
-    io.to(room).emit("message", { message, user, time });
+    io.to(room).emit("message", { message, username, time });
     console.log(
       "message: " + message + " sent to room " + room + " at " + time
     );

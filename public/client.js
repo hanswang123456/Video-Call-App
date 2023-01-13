@@ -35,7 +35,7 @@ navigator.mediaDevices
       },
       false
     );
-    let displayName = prompt("Enter Your Name", "Unkown");
+
     addVideoStream(myVideo, stream, "Me"); // Display our video to ourselves
 
     myPeer.on("call", (call) => {
@@ -44,34 +44,39 @@ navigator.mediaDevices
       const video = document.createElement("video"); // Create a video tag for them
       call.on("stream", (userVideoStream) => {
         // When we recieve their stream
-        addVideoStream(video, userVideoStream, displayName); // Display their video to ourselves
+        addVideoStream(video, userVideoStream, call.metadata.username); // Display their video to ourselves
       });
     });
 
-    socket.on("user-connected", (userId) => {
+    socket.on("user-connected", (userId, username) => {
       // If a new user connect
-      connectToNewUser(userId, stream);
+      connectToNewUser(userId, stream, username);
     });
   });
 
 myPeer.on("open", (id) => {
-  // When we first open the app, have us join a room
-  socket.emit("join-room", ROOM_ID, id);
-});
+  sessionStorage.setItem("session", ROOM_ID);
+  let displayName = prompt("Enter Your Name", "Unknown");
+  sessionStorage.setItem("username", displayName);
 
-function connectToNewUser(userId, stream) {
+  //window.localStorage.add("username", displayName);
+
+  // When we first open the app, have us join a room
+  socket.emit("join-room", ROOM_ID, id, displayName);
+});
+function connectToNewUser(userId, stream, username) {
   // This runs when someone joins our room
-  const call = myPeer.call(userId, stream); // Call the user who just joined
+  const call = myPeer.call(userId, stream, {
+    metadata: { username: sessionStorage.getItem("username") },
+  }); // Call the user who just joined
   // Add their video
   const video = document.createElement("video");
 
   call.on("stream", (userVideoStream) => {
-    addVideoStream(video, userVideoStream, "Participant");
+    addVideoStream(video, userVideoStream, username);
   });
-
   // If they leave, remove their video
-  socket.on("user-disconnected", () => {
-    video.remove();
+  socket.on("user-disconnected", (userId) => {
     video.parentElement.remove();
   });
 }
@@ -92,35 +97,40 @@ function addVideoStream(video, stream, userId) {
   videoGrid.append(container); // Append video element to videoGrid
 }
 
-peer.on("call", (call) => {
-  // Here client 2 is answering the call
-  // and sending back their stream
-  call.answer(stream);
-  const vid = document.createElement("video");
+// myPeer.on("call", (call) => {
+//   this.partnerId = call;
+//   console.log(this.peer.destroyed);
 
-  // This event append the user stream.
-  call.on("stream", (userStream) => {
-    addVideo(vid, userStream);
-  });
-  call.on("error", (err) => {
-    alert(err);
-  });
-});
+//   if (this.peer.destroyed) {
+//     this.createPeer(this.userId);
+//   }
+//   // Here client 2 is answering the call
+//   // and sending back their stream
+//   call.answer(stream);
+//   const vid = document.createElement("video");
+
+//   // This event append the user stream.
+//   call.on("stream", (userStream) => {
+//     addVideo(vid, userStream);
+//   });
+//   call.on("error", (err) => {
+//     alert(err);
+//   });
+// });
 
 var chatField = document.getElementById("send");
 var input = document.getElementById("chat_message");
-const messages = document.getElementById("main__chat_window");
+const messages = document.getElementById("messages");
 //chat feature
 //when user clicks send button, the client sends message to server
 chatField.addEventListener("click", function (e) {
   e.preventDefault();
   //if client has message in the input field
   if (input.value) {
-    alert("asdf");
     socket.emit("message", {
       message: input.value,
-      room: window.sessionStorage.getItem("broadcast"),
-      user: window.sessionStorage.getItem("user"),
+      room: sessionStorage.getItem("session"),
+      username: window.sessionStorage.getItem("username"),
       time: new Date().getHours() + ":" + new Date().getMinutes(),
     });
     input.value = "";
@@ -128,7 +138,8 @@ chatField.addEventListener("click", function (e) {
 });
 
 //recieves chat messages from server
-socket.on("message", ({ message, user, time }) => {
+socket.on("message", ({ message, username, time }) => {
+  alert(username);
   //style time so that minutes like :04 has 0
   var styledTime = time.split(":");
   if (styledTime[1].length == 1) {
@@ -139,21 +150,20 @@ socket.on("message", ({ message, user, time }) => {
   }
 
   //create a table that houses each output
-  var messageBox = document.createElement("table");
-  messageBox.className = "message";
+  var messageBox = document.createElement("div");
 
   //1st row of table is the user info and the
-  var generalInfo = document.createElement("tr");
-  generalInfo.className = "generalInfo";
+  var generalInfo = document.createElement("div");
+
   //check who sends it
-  if (user == window.sessionStorage.getItem("user")) {
+  if (username == window.sessionStorage.getItem("username")) {
+    messageBox.className = "generalInfo rightside";
     generalInfo.innerHTML =
-      "<td>" + "You" + "</td>" + "<td>" + styledTime + "</td>";
-    messageBox.style.float = "right";
+      "<div>" + "You" + "</div>" + "<div>" + styledTime + "</div>";
   } else {
-    messageBox.style.float = "left";
+    messageBox.className = "generalInfo leftside";
     generalInfo.innerHTML =
-      "<td>" + user + "</td>" + "<td>" + styledTime + "</td>";
+      "<div>" + username + "</div>" + "<div>" + styledTime + "</div>";
   }
 
   var text = document.createElement("tr");
