@@ -4,11 +4,14 @@
   "description": "Socket.io Chatroom",
   "main": "server.js",
   "dependencies": {
+    "ejs": "^3.1.8",
     "express": "^4.18.1",
+    "font-awesome": "^4.7.0",
+    "peerjs": "^1.4.7",
     "socket.io": "^4.5.0",
-    "socket.io-client": "^4.5.0"
+    "socket.io-client": "^4.5.0",
+    "uuid": "^9.0.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "node server.js",
     "start": "node server.js"

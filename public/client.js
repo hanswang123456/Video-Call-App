@@ -1,70 +1,122 @@
-var socket = io();
+const socket = io("/"); // Create our socket
+const videoGrid = document.getElementById("video-grid"); // Find the Video-Grid element
 
-var landingPage = document.getElementById("landingPage");
-var chatPage = document.getElementById("chatPage");
-var userName = document.getElementById("nameField");
-var messages = document.getElementById("messages");
-var chatField = document.getElementById("writeMessage");
-var joinRoomField = document.getElementById("joinRoomForm");
-var leaveRoom = document.getElementById("leaveRoom");
-var createRoom = document.getElementById("newRoomForm");
-var input = document.getElementById("input");
+const myPeer = new Peer(); // Creating a peer element which represents the current user
+const myVideo = document.createElement("video"); // Create a new video tag to show our video
+myVideo.muted = true; // Mute ourselves on our end so there is no feedback loop
 
-function makeid(length) {
-  var result = "";
-  var characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
+// Access the user's video and audio
+navigator.mediaDevices
+  .getUserMedia({
+    video: true,
+    audio: true,
+  })
+  .then((stream) => {
+    document.getElementById("stopVideo").addEventListener(
+      "click",
+      (e) => {
+        stream.getVideoTracks()[0].enabled =
+          !stream.getVideoTracks()[0].enabled;
+
+        if (stream.getVideoTracks()[0].enabled == false) {
+          document.getElementsByClassName("nameTag")[0].className = "nameBox";
+        } else {
+          document.getElementsByClassName("nameBox")[0].className = "nameTag";
+        }
+      },
+      false
+    );
+
+    document.getElementById("muteButton").addEventListener(
+      "click",
+      (e) => {
+        stream.getAudioTracks()[0].enabled =
+          !stream.getAudioTracks()[0].enabled;
+      },
+      false
+    );
+    let displayName = prompt("Enter Your Name", "Unkown");
+    addVideoStream(myVideo, stream, "Me"); // Display our video to ourselves
+
+    myPeer.on("call", (call) => {
+      // When we join someone's room we will receive a call from them
+      call.answer(stream); // Stream them our video/audio
+      const video = document.createElement("video"); // Create a video tag for them
+      call.on("stream", (userVideoStream) => {
+        // When we recieve their stream
+        addVideoStream(video, userVideoStream, displayName); // Display their video to ourselves
+      });
+    });
+
+    socket.on("user-connected", (userId) => {
+      // If a new user connect
+      connectToNewUser(userId, stream);
+    });
+  });
+
+myPeer.on("open", (id) => {
+  // When we first open the app, have us join a room
+  socket.emit("join-room", ROOM_ID, id);
+});
+
+function connectToNewUser(userId, stream) {
+  // This runs when someone joins our room
+  const call = myPeer.call(userId, stream); // Call the user who just joined
+  // Add their video
+  const video = document.createElement("video");
+
+  call.on("stream", (userVideoStream) => {
+    addVideoStream(video, userVideoStream, "Participant");
+  });
+
+  // If they leave, remove their video
+  socket.on("user-disconnected", () => {
+    video.remove();
+    video.parentElement.remove();
+  });
 }
 
-createRoom.addEventListener("submit", function (e) {
-  e.preventDefault();
-  if (userName.value) {
-    var roomID = document.getElementById("roomField").value;
-    var generatedID = makeid(12);
+function addVideoStream(video, stream, userId) {
+  video.srcObject = stream;
+  let container = document.createElement("div");
+  container.style.position = "relative";
+  let nameTag = document.createElement("div");
+  nameTag.className = "nameTag";
+  nameTag.innerHTML = userId;
+  container.append(video);
+  container.append(nameTag);
+  video.addEventListener("loadedmetadata", () => {
+    // Play the video as it loads
+    video.play();
+  });
+  videoGrid.append(container); // Append video element to videoGrid
+}
 
-    window.sessionStorage.setItem("currentPage", "chat");
-    window.sessionStorage.setItem("broadcast", generatedID.toString());
-    window.sessionStorage.setItem("user", userName.value.toString());
+peer.on("call", (call) => {
+  // Here client 2 is answering the call
+  // and sending back their stream
+  call.answer(stream);
+  const vid = document.createElement("video");
 
-    socket.emit("join_room", { room: generatedID, user: userName.value });
-    updatePage();
-  }
+  // This event append the user stream.
+  call.on("stream", (userStream) => {
+    addVideo(vid, userStream);
+  });
+  call.on("error", (err) => {
+    alert(err);
+  });
 });
 
-joinRoomField.addEventListener("submit", function (e) {
-  e.preventDefault();
-  var roomID = document.getElementById("roomField").value;
-
-  if (roomID != null && userName.value) {
-    window.sessionStorage.setItem("currentPage", "chat");
-    window.sessionStorage.setItem("broadcast", roomID.toString());
-    window.sessionStorage.setItem("user", userName.value.toString());
-
-    socket.emit("join_room", { room: roomID, user: userName.value });
-    updatePage();
-  }
-});
-leaveRoom.addEventListener("click", function (e) {
-  var roomID = window.sessionStorage.getItem("broadcast");
-  e.preventDefault();
-  window.sessionStorage.setItem("currentPage", "landingPage");
-  window.sessionStorage.setItem("broadcast", "none");
-  window.sessionStorage.setItem("user", userName.value.toString());
-
-  socket.emit("leave_room", { room: roomID, user: userName.value });
-  updatePage();
-});
-
+var chatField = document.getElementById("send");
+var input = document.getElementById("chat_message");
+const messages = document.getElementById("main__chat_window");
+//chat feature
 //when user clicks send button, the client sends message to server
-chatField.addEventListener("submit", function (e) {
+chatField.addEventListener("click", function (e) {
   e.preventDefault();
   //if client has message in the input field
   if (input.value) {
+    alert("asdf");
     socket.emit("message", {
       message: input.value,
       room: window.sessionStorage.getItem("broadcast"),
@@ -115,14 +167,3 @@ socket.on("message", ({ message, user, time }) => {
   //autoscroll
   messages.scrollTo(0, messages.scrollHeight);
 });
-
-//this is not working rn
-function updatePage() {
-  if (window.sessionStorage.getItem("currentPage") == "chat") {
-    landingPage.style.visibility = "hidden";
-    chatPage.style.visibility = "visible";
-  } else {
-    landingPage.style.visibility = "visible";
-    chatPage.style.visibility = "hidden";
-  }
-}
