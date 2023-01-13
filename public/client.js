@@ -3,7 +3,7 @@ const videoGrid = document.getElementById("video-grid"); // Find the Video-Grid 
 
 const myPeer = new Peer(); // Creating a peer element which represents the current user
 const myVideo = document.createElement("video"); // Create a new video tag to show our video
-myVideo.muted = true; // Mute ourselves on our end so there is no feedback loop
+// Mute ourselves on our end so there is no feedback loop
 
 // Access the user's video and audio
 navigator.mediaDevices
@@ -139,7 +139,6 @@ chatField.addEventListener("click", function (e) {
 
 //recieves chat messages from server
 socket.on("message", ({ message, username, time }) => {
-  alert(username);
   //style time so that minutes like :04 has 0
   var styledTime = time.split(":");
   if (styledTime[1].length == 1) {
